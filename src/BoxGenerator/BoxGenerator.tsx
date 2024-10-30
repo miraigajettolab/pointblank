@@ -118,9 +118,9 @@ const BoxGenerator: React.FC = () => {
     const angle1 = getRandomAngleExcluding();
     const angle2 = getRandomAngleExcluding([angle1]);
     const angle3 = getRandomAngleExcluding([angle1, angle2]);
-    const length1 = getRandomLength(minDimention / 40, minDimention / 4);
-    const length2 = getRandomLength(minDimention / 40, minDimention / 4);
-    const length3 = getRandomLength(minDimention / 40, minDimention / 4);
+    const length1 = getRandomLength(minDimention / 20, minDimention / 3);
+    const length2 = getRandomLength(minDimention / 20, minDimention / 3);
+    const length3 = getRandomLength(minDimention / 20, minDimention / 3);
 
     drawCenterLine(angle1, length1);
     drawCenterLine(angle2, length2);
@@ -148,15 +148,29 @@ const BoxGenerator: React.FC = () => {
     const vp2 = getInsersectionPoint(end1, corner12, centerPoint, end2);
     const vp3 = getInsersectionPoint(end1, corner13, centerPoint, end3);
 
+    const corner23 = getInsersectionPoint(end3, vp2, end2, vp3);
+    drawLine(end2, corner23);
+    drawLine(end3, corner23);
+
+    const backCorner = getInsersectionPoint(corner23, vp1, corner13, vp2);
+    drawLine(corner13, backCorner);
+    drawLine(corner12, backCorner);
+    drawLine(corner23, backCorner);
+
     drawLine(end1, vp1, "red", 1);
     drawLine(corner12, vp1, "red", 1);
     drawLine(corner13, vp1, "red", 1);
+    drawLine(backCorner, vp1, "red", 1);
 
     drawLine(corner12, vp2, "green", 1);
     drawLine(end2, vp2, "green", 1);
+    drawLine(corner23, vp2, "green", 1);
+    drawLine(backCorner, vp2, "green", 1);
 
     drawLine(corner13, vp3, "blue", 1);
     drawLine(end3, vp3, "blue", 1);
+    drawLine(corner23, vp3, "blue", 1);
+    drawLine(backCorner, vp3, "blue", 1);
   }, [canvasRef]);
 
   return (
