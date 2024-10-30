@@ -70,8 +70,28 @@ const BoxGenerator: React.FC = () => {
       };
     };
 
-    const drawLine = (start: Point, end: Point) => {
-      context.lineWidth = 5;
+    const getInsersectionPoint = (start1: Point, end1: Point, start2: Point, end2: Point): Point => {
+      const denominator = (end2.y - start2.y) * (end1.x - start1.x) - (end2.x - start2.x) * (end1.y - start1.y);
+      if (denominator === 0) {
+        throw new Error("Denominator is 0 when trying to calculate line intersection");
+      }
+
+      let a = start1.y - start2.y;
+      let b = start1.x - start2.x;
+
+      const numerator1 = (end2.x - start2.x) * a - (end2.y - start2.y) * b;
+      const numerator2 = (end1.x - start1.x) * a - (end1.y - start1.y) * b;
+
+      a = numerator1 / denominator;
+      b = numerator2 / denominator;
+
+      // if we cast these lines infinitely in both directions, they intersect here:
+      return { x: start1.x + a * (end1.x - start1.x), y: start1.y + a * (end1.y - start1.y) };
+    };
+
+    const drawLine = (start: Point, end: Point, color: string = "black", width = 5) => {
+      context.strokeStyle = color;
+      context.lineWidth = width;
       context.beginPath();
       context.moveTo(start.x, start.y);
       context.lineTo(end.x, end.y);
@@ -86,9 +106,9 @@ const BoxGenerator: React.FC = () => {
     const angle1 = getRandomAngleExcluding();
     const angle2 = getRandomAngleExcluding([angle1]);
     const angle3 = getRandomAngleExcluding([angle1, angle2]);
-    const length1 = getRandomLength(minDimention / 10, minDimention / 4);
-    const length2 = getRandomLength(minDimention / 10, minDimention / 4);
-    const length3 = getRandomLength(minDimention / 10, minDimention / 4);
+    const length1 = getRandomLength(minDimention / 40, minDimention / 4);
+    const length2 = getRandomLength(minDimention / 40, minDimention / 4);
+    const length3 = getRandomLength(minDimention / 40, minDimention / 4);
 
     drawCenterLine(angle1, length1);
     drawCenterLine(angle2, length2);
@@ -101,6 +121,11 @@ const BoxGenerator: React.FC = () => {
 
     drawLine(end1, corner12);
     drawLine(end2, corner12);
+
+    const vp1 = getInsersectionPoint(centerPoint, end1, end2, corner12);
+
+    drawLine(end1, vp1, "red", 2);
+    drawLine(corner12, vp1, "red", 2);
   }, [canvasRef]);
 
   return (
