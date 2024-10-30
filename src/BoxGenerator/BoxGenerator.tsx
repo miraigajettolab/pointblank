@@ -1,6 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { BoxCanvas, BoxGeneratorInner } from "./inner";
 
+interface Point {
+  x: number;
+  y: number;
+}
+
 const getRandomAngleExcluding = (excludedAngles: number[] = [], bufferAngle: number = Math.PI / 2): number => {
   const CIRCLE_RADS = 2 * Math.PI;
 
@@ -35,32 +40,33 @@ const BoxGenerator: React.FC = () => {
       return;
     }
 
-    const minDimention = Math.min(context.canvas.width, context.canvas.height);
-
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-    const getEndLineCoordinates = (startX: number, startY: number, angle: number, length: number): number[] => {
-      const endX = startX + length * Math.cos(angle);
-      const endY = startY + length * Math.sin(angle);
-
-      return [endX, endY];
+    const centerPoint = {
+      x: context.canvas.width / 2,
+      y: context.canvas.height / 2,
     };
 
-    const drawLine = (startX: number, startY: number, endX: number, endY: number) => {
+    const minDimention = Math.min(context.canvas.width, context.canvas.height);
+
+    const getEndPoint = (start: Point, angle: number, length: number): Point => {
+      return {
+        x: start.x + length * Math.cos(angle),
+        y: start.y + length * Math.sin(angle),
+      };
+    };
+
+    const drawLine = (start: Point, end: Point) => {
       context.lineWidth = 5;
       context.beginPath();
-      context.moveTo(startX, startY);
-      context.lineTo(endX, endY);
+      context.moveTo(start.x, start.y);
+      context.lineTo(end.x, end.y);
       context.stroke();
     };
 
     const drawCenterLine = (angle: number, length: number) => {
-      const startX = context.canvas.width / 2;
-      const startY = context.canvas.height / 2;
-
-      const [endX, endY] = getEndLineCoordinates(startX, startY, angle, length);
-
-      drawLine(startX, startY, endX, endY);
+      const endPoint = getEndPoint(centerPoint, angle, length);
+      drawLine(centerPoint, endPoint);
     };
 
     const angle1 = getRandomAngleExcluding();
@@ -73,6 +79,12 @@ const BoxGenerator: React.FC = () => {
     drawCenterLine(angle1, length1);
     drawCenterLine(angle2, length2);
     drawCenterLine(angle3, length3);
+
+    const end1 = getEndPoint(centerPoint, angle1, length1);
+    const end2 = getEndPoint(centerPoint, angle2, length2);
+    const corner1 = getEndPoint(end1, angle2, length2);
+    drawLine(end1, corner1);
+    drawLine(end2, corner1);
   }, [canvasRef]);
 
   return (
