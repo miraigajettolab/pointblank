@@ -45,6 +45,18 @@ const getRandomPointInTriangle = (p1: Point, p2: Point, p3: Point): Point => {
   };
 };
 
+const getRandomPointOnALine = (p1: Point, p2: Point): Point => {
+  const slope = (p2.y - p1.y) / (p2.x - p1.x);
+  const n = Math.random();
+  const x = (p2.x - p1.x) * n + p1.x;
+  const y = slope * (x - p1.x) + p1.y;
+
+  return {
+    x,
+    y,
+  };
+};
+
 const BoxGenerator: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -89,7 +101,7 @@ const BoxGenerator: React.FC = () => {
       return { x: start1.x + a * (end1.x - start1.x), y: start1.y + a * (end1.y - start1.y) };
     };
 
-    const drawLine = (start: Point, end: Point, color: string = "black", width = 5) => {
+    const drawLine = (start: Point, end: Point, color: string = "black", width = 3) => {
       context.strokeStyle = color;
       context.lineWidth = width;
       context.beginPath();
@@ -116,6 +128,8 @@ const BoxGenerator: React.FC = () => {
 
     const end1 = getEndPoint(centerPoint, angle1, length1);
     const end2 = getEndPoint(centerPoint, angle2, length2);
+    const end3 = getEndPoint(centerPoint, angle3, length3);
+
     const intersection12 = getEndPoint(end1, angle2, length2);
     const corner12 = getRandomPointInTriangle(end1, end2, intersection12);
 
@@ -124,8 +138,25 @@ const BoxGenerator: React.FC = () => {
 
     const vp1 = getInsersectionPoint(centerPoint, end1, end2, corner12);
 
-    drawLine(end1, vp1, "red", 2);
-    drawLine(corner12, vp1, "red", 2);
+    const corner13 = getRandomPointOnALine(
+      end3,
+      getInsersectionPoint(end1, getEndPoint(end3, angle1, length1), end3, vp1)
+    );
+    drawLine(end1, corner13);
+    drawLine(end3, corner13);
+
+    const vp2 = getInsersectionPoint(end1, corner12, centerPoint, end2);
+    const vp3 = getInsersectionPoint(end1, corner13, centerPoint, end3);
+
+    drawLine(end1, vp1, "red", 1);
+    drawLine(corner12, vp1, "red", 1);
+    drawLine(corner13, vp1, "red", 1);
+
+    drawLine(corner12, vp2, "green", 1);
+    drawLine(end2, vp2, "green", 1);
+
+    drawLine(corner13, vp3, "blue", 1);
+    drawLine(end3, vp3, "blue", 1);
   }, [canvasRef]);
 
   return (
