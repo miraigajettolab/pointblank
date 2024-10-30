@@ -24,12 +24,44 @@ const getRandomAngleExcluding = (excludedAngles: number[] = [], bufferAngle: num
   return randomAngle;
 };
 
+const getRandomLength = (min: number, max: number) => Math.floor(min + Math.random() * (max - min));
+
 const BoxGenerator: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  useEffect(() => {
+    const context = canvasRef.current?.getContext("2d");
+    if (!context) {
+      return;
+    }
+
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+
+    const drawLine = (startX: number, startY: number, length: number, angle: number) => {
+      const endX = startX + length * Math.cos(angle);
+      const endY = startY + length * Math.sin(angle);
+
+      context.lineWidth = 5;
+      context.beginPath();
+      context.moveTo(startX, startY);
+      context.lineTo(endX, endY);
+      context.stroke();
+    };
+
+    const startX = context.canvas.width / 2;
+    const startY = context.canvas.height / 2;
+    const angle1 = getRandomAngleExcluding();
+    const angle2 = getRandomAngleExcluding([angle1]);
+    const angle3 = getRandomAngleExcluding([angle1, angle2]);
+
+    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle1);
+    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle2);
+    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle3);
+  }, [canvasRef]);
+
   return (
     <BoxGeneratorInner>
-      <BoxCanvas ref={canvasRef} />
+      <BoxCanvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} />
     </BoxGeneratorInner>
   );
 };
