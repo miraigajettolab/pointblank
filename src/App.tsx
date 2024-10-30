@@ -1,8 +1,13 @@
 import React from "react";
 import "./App.css";
+import BoxGenerator from "./BoxGenerator/BoxGenerator";
 
 function App() {
-  return <div>TODO:</div>;
+  return (
+    <div>
+      <BoxGenerator />
+    </div>
+  );
 }
 
 export default App;
