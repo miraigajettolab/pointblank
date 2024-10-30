@@ -35,12 +35,18 @@ const BoxGenerator: React.FC = () => {
       return;
     }
 
+    const minDimention = Math.min(context.canvas.width, context.canvas.height);
+
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-    const drawLine = (startX: number, startY: number, length: number, angle: number) => {
+    const getEndLineCoordinates = (startX: number, startY: number, angle: number, length: number): number[] => {
       const endX = startX + length * Math.cos(angle);
       const endY = startY + length * Math.sin(angle);
 
+      return [endX, endY];
+    };
+
+    const drawLine = (startX: number, startY: number, endX: number, endY: number) => {
       context.lineWidth = 5;
       context.beginPath();
       context.moveTo(startX, startY);
@@ -48,15 +54,25 @@ const BoxGenerator: React.FC = () => {
       context.stroke();
     };
 
-    const startX = context.canvas.width / 2;
-    const startY = context.canvas.height / 2;
+    const drawCenterLine = (angle: number, length: number) => {
+      const startX = context.canvas.width / 2;
+      const startY = context.canvas.height / 2;
+
+      const [endX, endY] = getEndLineCoordinates(startX, startY, angle, length);
+
+      drawLine(startX, startY, endX, endY);
+    };
+
     const angle1 = getRandomAngleExcluding();
     const angle2 = getRandomAngleExcluding([angle1]);
     const angle3 = getRandomAngleExcluding([angle1, angle2]);
+    const length1 = getRandomLength(minDimention / 40, minDimention / 4);
+    const length2 = getRandomLength(minDimention / 40, minDimention / 4);
+    const length3 = getRandomLength(minDimention / 40, minDimention / 4);
 
-    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle1);
-    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle2);
-    drawLine(startX, startY, getRandomLength(context.canvas.width / 40, context.canvas.width / 4), angle3);
+    drawCenterLine(angle1, length1);
+    drawCenterLine(angle2, length2);
+    drawCenterLine(angle3, length3);
   }, [canvasRef]);
 
   return (
