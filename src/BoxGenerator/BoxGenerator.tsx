@@ -1,3 +1,4 @@
+import { off } from "process";
 import React, { useEffect, useRef, useState } from "react";
 import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton } from "./inner";
 import { BoxData, Point, generateBoxData } from "./util";
@@ -6,6 +7,7 @@ enum States {
   PlaceFrontPoint,
   PlaceBackPoint,
   CheckResults,
+  CheckResultsWithVanishingPoints,
 }
 
 const BoxGenerator: React.FC = () => {
@@ -16,6 +18,8 @@ const BoxGenerator: React.FC = () => {
   const [state, setState] = useState(States.PlaceFrontPoint);
   const [frontPoint, setFrontPoint] = useState<Point | null>(null);
   const [backPoint, setBackPoint] = useState<Point | null>(null);
+
+  const RESULT_STATES = [States.CheckResults, States.CheckResultsWithVanishingPoints];
 
   const handleReset = () => {
     setBox(generateBoxData(canvasWidth, canvasHeight));
@@ -32,7 +36,32 @@ const BoxGenerator: React.FC = () => {
 
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-    const drawLine = (start: Point, end: Point, color: string = "black", width = 3) => {
+    const drawPoint = (point: Point, color: string = "black", radius = 3) => {
+      context.beginPath();
+      context.arc(point.x, point.y, radius, 0, 2 * Math.PI);
+      context.fillStyle = color;
+      context.fill();
+    };
+
+    const drawLine = (
+      start: Point,
+      end: Point,
+      color: string = "black",
+      width = 3,
+      drawPoints = true,
+      dashed = false
+    ) => {
+      if (drawPoints) {
+        drawPoint(start, color);
+        drawPoint(end, color);
+      }
+
+      if (dashed) {
+        context.setLineDash([width * 2, width * 2]);
+      } else {
+        context.setLineDash([]);
+      }
+
       context.strokeStyle = color;
       context.lineWidth = width;
       context.beginPath();
@@ -41,12 +70,39 @@ const BoxGenerator: React.FC = () => {
       context.stroke();
     };
 
-    const drawPoint = (point: Point, color: string = "black", radius = 3) => {
-      context.beginPath();
-      context.arc(point.x, point.y, radius, 0, 2 * Math.PI);
-      context.fillStyle = color;
-      context.fill();
-    };
+    if (RESULT_STATES.includes(state)) {
+      if (state === States.CheckResultsWithVanishingPoints) {
+        drawLine(box.yEnd1, box.vp1, "red", 1);
+        drawLine(box.corner12, box.vp1, "red", 1);
+        drawLine(box.corner13, box.vp1, "red", 1);
+        drawLine(box.backCorner, box.vp1, "red", 1);
+
+        drawLine(box.corner12, box.vp2, "green", 1);
+        drawLine(box.yEnd2, box.vp2, "green", 1);
+        drawLine(box.corner23, box.vp2, "green", 1);
+        drawLine(box.backCorner, box.vp2, "green", 1);
+
+        drawLine(box.corner13, box.vp3, "blue", 1);
+        drawLine(box.yEnd3, box.vp3, "blue", 1);
+        drawLine(box.corner23, box.vp3, "blue", 1);
+        drawLine(box.backCorner, box.vp3, "blue", 1);
+      }
+
+      drawLine(box.yEnd2, box.corner23);
+      drawLine(box.yEnd3, box.corner23);
+
+      drawLine(box.corner13, box.backCorner);
+      drawLine(box.corner12, box.backCorner);
+      drawLine(box.corner23, box.backCorner);
+
+      if (frontPoint !== null) {
+        drawLine(box.corner23, frontPoint, "blue", 1, false, true);
+      }
+
+      if (backPoint !== null) {
+        drawLine(box.backCorner, backPoint, "red", 1, false, true);
+      }
+    }
 
     drawLine(box.frontCorner, box.yEnd1);
     drawLine(box.frontCorner, box.yEnd2);
@@ -64,30 +120,6 @@ const BoxGenerator: React.FC = () => {
 
     if (backPoint !== null) {
       drawPoint(backPoint, "red");
-    }
-
-    if (state === States.CheckResults) {
-      drawLine(box.yEnd2, box.corner23);
-      drawLine(box.yEnd3, box.corner23);
-
-      drawLine(box.corner13, box.backCorner);
-      drawLine(box.corner12, box.backCorner);
-      drawLine(box.corner23, box.backCorner);
-
-      drawLine(box.yEnd1, box.vp1, "red", 1);
-      drawLine(box.corner12, box.vp1, "red", 1);
-      drawLine(box.corner13, box.vp1, "red", 1);
-      drawLine(box.backCorner, box.vp1, "red", 1);
-
-      drawLine(box.corner12, box.vp2, "green", 1);
-      drawLine(box.yEnd2, box.vp2, "green", 1);
-      drawLine(box.corner23, box.vp2, "green", 1);
-      drawLine(box.backCorner, box.vp2, "green", 1);
-
-      drawLine(box.corner13, box.vp3, "blue", 1);
-      drawLine(box.yEnd3, box.vp3, "blue", 1);
-      drawLine(box.corner23, box.vp3, "blue", 1);
-      drawLine(box.backCorner, box.vp3, "blue", 1);
     }
   }, [canvasRef, box, state, frontPoint, backPoint]);
 
@@ -121,7 +153,9 @@ const BoxGenerator: React.FC = () => {
       case States.PlaceBackPoint:
         return "Set Back Corner";
       case States.CheckResults:
-        return "Results";
+        return "Results:";
+      case States.CheckResultsWithVanishingPoints:
+        return "Results with vanishing points:";
     }
   };
 
@@ -130,17 +164,31 @@ const BoxGenerator: React.FC = () => {
       <BoxTitle>{getTitle()}</BoxTitle>
       <BoxCanvas ref={canvasRef} width={canvasWidth} height={canvasHeight} onClick={handleCanvasClick} />
       <BoxControls>
-        <ControlButton disabled={state === States.CheckResults} onClick={() => setState(States.PlaceFrontPoint)}>
+        <ControlButton disabled={RESULT_STATES.includes(state)} onClick={() => setState(States.PlaceFrontPoint)}>
           Place Front
         </ControlButton>
-        <ControlButton disabled={state === States.CheckResults} onClick={() => setState(States.PlaceBackPoint)}>
+        <ControlButton disabled={RESULT_STATES.includes(state)} onClick={() => setState(States.PlaceBackPoint)}>
           Place Back
         </ControlButton>
         <ControlButton
           disabled={frontPoint === null || backPoint === null}
-          onClick={() => setState(States.CheckResults)}
+          onClick={() =>
+            setState(
+              state === States.CheckResultsWithVanishingPoints
+                ? States.CheckResults
+                : States.CheckResultsWithVanishingPoints
+            )
+          }
         >
-          Check
+          {(() => {
+            if (state === States.CheckResultsWithVanishingPoints) {
+              return "Hide VPs";
+            } else if (state === States.CheckResults) {
+              return "Show VPs";
+            } else {
+              return "Results";
+            }
+          })()}
         </ControlButton>
         <ControlButton onClick={handleReset}>Reset</ControlButton>
       </BoxControls>
