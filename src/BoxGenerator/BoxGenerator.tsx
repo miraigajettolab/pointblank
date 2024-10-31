@@ -1,4 +1,3 @@
-import { off } from "process";
 import React, { useEffect, useRef, useState } from "react";
 import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton, Footnote } from "./inner";
 import { BoxData, Point, generateBoxData } from "./util";
@@ -10,6 +9,8 @@ enum States {
   CheckResultsWithVanishingPoints,
 }
 
+const RESULT_STATES = [States.CheckResults, States.CheckResultsWithVanishingPoints];
+
 const BoxGenerator: React.FC = () => {
   const canvasHeight = window.innerHeight;
   const canvasWidth = window.innerWidth;
@@ -18,8 +19,6 @@ const BoxGenerator: React.FC = () => {
   const [state, setState] = useState(States.PlaceFrontPoint);
   const [frontPoint, setFrontPoint] = useState<Point | null>(null);
   const [backPoint, setBackPoint] = useState<Point | null>(null);
-
-  const RESULT_STATES = [States.CheckResults, States.CheckResultsWithVanishingPoints];
 
   const handleReset = () => {
     setBox(generateBoxData(canvasWidth, canvasHeight));
