@@ -4,11 +4,12 @@ export const BoxGeneratorInner = styled.div``;
 
 export const BoxCanvas = styled.canvas``;
 
-export const BoxTitle = styled.h1`
+export const BoxTitle = styled.h2`
   position: fixed;
   top: 0;
   right: 50%;
   transform: translateX(50%);
+  text-align: center;
 `;
 
 export const BoxControls = styled.div`

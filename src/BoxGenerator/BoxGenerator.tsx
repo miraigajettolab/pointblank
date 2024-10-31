@@ -149,13 +149,13 @@ const BoxGenerator: React.FC = () => {
   const getTitle = (): string => {
     switch (state) {
       case States.PlaceFrontPoint:
-        return "Set Front Corner";
+        return "Setting the Front Corner";
       case States.PlaceBackPoint:
-        return "Set Back Corner";
+        return "Setting the Back Corner";
       case States.CheckResults:
         return "Results:";
       case States.CheckResultsWithVanishingPoints:
-        return "Results with vanishing points:";
+        return "Results with VPs:";
     }
   };
 
