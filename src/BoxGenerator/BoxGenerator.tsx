@@ -1,6 +1,6 @@
 import { off } from "process";
 import React, { useEffect, useRef, useState } from "react";
-import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton } from "./inner";
+import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton, Footnote } from "./inner";
 import { BoxData, Point, generateBoxData } from "./util";
 
 enum States {
@@ -192,6 +192,9 @@ const BoxGenerator: React.FC = () => {
         </ControlButton>
         <ControlButton onClick={handleReset}>Reset</ControlButton>
       </BoxControls>
+      <Footnote>
+        <a href="https://github.com/miraigajettolab/pointblank">github</a>
+      </Footnote>
     </BoxGeneratorInner>
   );
 };

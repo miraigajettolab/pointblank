@@ -38,3 +38,10 @@ export const ControlButton = styled.button`
     cursor: default;
   }
 `;
+
+export const Footnote = styled.div`
+  display: flex;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+`;
