@@ -42,32 +42,6 @@ export const getRandomAngleExcluding = (excludedAngles: number[] = [], bufferAng
 
 export const getRandomLength = (min: number, max: number) => Math.floor(min + Math.random() * (max - min));
 
-export const getRandomPointInTriangle = (p1: Point, p2: Point, p3: Point): Point => {
-  const u = Math.random();
-  const v = Math.random();
-
-  const w = u + v;
-  const adjustedU = w > 1 ? 1 - u : u;
-  const adjustedV = w > 1 ? 1 - v : v;
-
-  return {
-    x: (1 - adjustedU - adjustedV) * p1.x + adjustedU * p2.x + adjustedV * p3.x,
-    y: (1 - adjustedU - adjustedV) * p1.y + adjustedU * p2.y + adjustedV * p3.y,
-  };
-};
-
-export const getRandomPointOnALine = (p1: Point, p2: Point): Point => {
-  const slope = (p2.y - p1.y) / (p2.x - p1.x);
-  const n = Math.random();
-  const x = (p2.x - p1.x) * n + p1.x;
-  const y = slope * (x - p1.x) + p1.y;
-
-  return {
-    x,
-    y,
-  };
-};
-
 export const getEndPoint = (start: Point, angle: number, length: number): Point => {
   return {
     x: start.x + length * Math.cos(angle),
@@ -109,23 +83,20 @@ export const generateBoxData = (canvasWidth: number, canvasHeight: number): BoxD
   const length2 = getRandomLength(minDimention / 20, minDimention / 3);
   const length3 = getRandomLength(minDimention / 20, minDimention / 3);
 
+  const lengthVP1 = getRandomLength(minDimention / 30, minDimention * 2);
+  const lengthVP2 = getRandomLength(minDimention / 30, minDimention * 2);
+  const lengthVP3 = getRandomLength(minDimention / 30, minDimention * 2);
+
   const yEnd1 = getEndPoint(frontCorner, angle1, length1);
   const yEnd2 = getEndPoint(frontCorner, angle2, length2);
   const yEnd3 = getEndPoint(frontCorner, angle3, length3);
 
-  const intersection12 = getEndPoint(yEnd1, angle2, length2);
-  const corner12 = getRandomPointInTriangle(yEnd1, yEnd2, intersection12);
+  const vp1 = getEndPoint(yEnd1, angle1, lengthVP1);
+  const vp2 = getEndPoint(yEnd2, angle2, lengthVP2);
+  const vp3 = getEndPoint(yEnd3, angle3, lengthVP3);
 
-  const vp1 = getInsersectionPoint(frontCorner, yEnd1, yEnd2, corner12);
-
-  const corner13 = getRandomPointOnALine(
-    yEnd3,
-    getInsersectionPoint(yEnd1, getEndPoint(yEnd3, angle1, length1), yEnd3, vp1)
-  );
-
-  const vp2 = getInsersectionPoint(yEnd1, corner12, frontCorner, yEnd2);
-  const vp3 = getInsersectionPoint(yEnd1, corner13, frontCorner, yEnd3);
-
+  const corner12 = getInsersectionPoint(yEnd1, vp2, yEnd2, vp1);
+  const corner13 = getInsersectionPoint(yEnd1, vp3, yEnd3, vp1);
   const corner23 = getInsersectionPoint(yEnd3, vp2, yEnd2, vp3);
 
   const backCorner = getInsersectionPoint(corner23, vp1, corner13, vp2);
