@@ -186,7 +186,7 @@ const BoxGenerator: React.FC = () => {
             } else if (state === States.CheckResults) {
               return "Show VPs";
             } else {
-              return "Results";
+              return "Check";
             }
           })()}
         </ControlButton>
