@@ -42,6 +42,6 @@ export const ControlButton = styled.button`
 export const Footnote = styled.div`
   display: flex;
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 20px;
 `;
