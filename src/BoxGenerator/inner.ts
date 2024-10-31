@@ -6,7 +6,7 @@ export const BoxCanvas = styled.canvas``;
 
 export const BoxTitle = styled.h2`
   position: fixed;
-  top: 0;
+  top: 10px;
   right: 50%;
   transform: translateX(50%);
   text-align: center;
@@ -16,7 +16,7 @@ export const BoxControls = styled.div`
   position: fixed;
   display: flex;
   column-gap: 10px;
-  bottom: 40px;
+  bottom: 60px;
   right: 50%;
   transform: translateX(50%);
 `;
