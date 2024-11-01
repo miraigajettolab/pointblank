@@ -42,6 +42,16 @@ export const getRandomAngleExcluding = (excludedAngles: number[] = [], bufferAng
 
 export const getRandomLength = (min: number, max: number) => Math.floor(min + Math.random() * (max - min));
 
+export const getGaussianRandom = (mean: number, sd: number) => {
+  //Box-Muller transform
+  const u1 = 1 - Math.random();
+  const u2 = Math.random();
+
+  const x = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+
+  return x * sd + mean;
+};
+
 export const getEndPoint = (start: Point, angle: number, length: number): Point => {
   return {
     x: start.x + length * Math.cos(angle),
