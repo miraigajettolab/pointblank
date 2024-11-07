@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton, Footnote } from "./inner";
+import { BoxCanvas, BoxControls, BoxGeneratorInner, BoxTitle, ControlButton, Header } from "./inner";
 import { BoxData, Point, generateBoxData } from "./util";
 
 enum States {
@@ -19,6 +19,7 @@ const BoxGenerator: React.FC = () => {
   const [state, setState] = useState(States.PlaceFrontPoint);
   const [frontPoint, setFrontPoint] = useState<Point | null>(null);
   const [backPoint, setBackPoint] = useState<Point | null>(null);
+  const [count, setCount] = useState<number>(0);
 
   const handleReset = () => {
     setBox(generateBoxData(canvasWidth, canvasHeight));
@@ -158,6 +159,16 @@ const BoxGenerator: React.FC = () => {
     }
   };
 
+  const showingResults = [States.CheckResults, States.CheckResultsWithVanishingPoints].includes(state);
+
+  const handleCheckResults = () => {
+    setCount((count) => count + 1);
+    setState(States.CheckResultsWithVanishingPoints);
+  };
+
+  const handleToggleVPs = () =>
+    setState(state === States.CheckResults ? States.CheckResultsWithVanishingPoints : States.CheckResults);
+
   return (
     <BoxGeneratorInner>
       <BoxTitle>{getTitle()}</BoxTitle>
@@ -169,31 +180,23 @@ const BoxGenerator: React.FC = () => {
         <ControlButton disabled={RESULT_STATES.includes(state)} onClick={() => setState(States.PlaceBackPoint)}>
           Place Back
         </ControlButton>
-        <ControlButton
-          disabled={frontPoint === null || backPoint === null}
-          onClick={() =>
-            setState(
-              state === States.CheckResultsWithVanishingPoints
-                ? States.CheckResults
-                : States.CheckResultsWithVanishingPoints
-            )
-          }
-        >
-          {(() => {
-            if (state === States.CheckResultsWithVanishingPoints) {
-              return "Hide VPs";
-            } else if (state === States.CheckResults) {
-              return "Show VPs";
-            } else {
-              return "Check";
-            }
-          })()}
-        </ControlButton>
-        <ControlButton onClick={handleReset}>Reset</ControlButton>
+        {!showingResults && (
+          <ControlButton disabled={frontPoint === null || backPoint === null} onClick={handleCheckResults}>
+            Check
+          </ControlButton>
+        )}
+        {showingResults && (
+          <ControlButton onClick={handleToggleVPs}>
+            {state === States.CheckResults ? "Show VPs" : "Hide VPs"}
+          </ControlButton>
+        )}
+        <ControlButton onClick={handleReset}>Next</ControlButton>
       </BoxControls>
-      <Footnote>
+      <Header>
+        <span>{count}</span>
+        <span>|</span>
         <a href="https://github.com/miraigajettolab/pointblank">github</a>
-      </Footnote>
+      </Header>
     </BoxGeneratorInner>
   );
 };

@@ -39,9 +39,10 @@ export const ControlButton = styled.button`
   }
 `;
 
-export const Footnote = styled.div`
+export const Header = styled.div`
   display: flex;
   position: fixed;
+  column-gap: 10px;
   top: 20px;
   left: 20px;
 `;
