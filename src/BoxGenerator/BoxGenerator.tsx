@@ -134,15 +134,15 @@ const BoxGenerator: React.FC = () => {
     if (state === States.PlaceFrontPoint) {
       setFrontPoint(point);
 
-      if (backPoint === null) {
-        setState(States.PlaceBackPoint);
-      }
+      // if (backPoint === null) {
+      //   setState(States.PlaceBackPoint);
+      // }
     } else if (state === States.PlaceBackPoint) {
       setBackPoint(point);
 
-      if (frontPoint === null) {
-        setState(States.PlaceFrontPoint);
-      }
+      // if (frontPoint === null) {
+      //   setState(States.PlaceFrontPoint);
+      // }
     }
   };
 
