@@ -21,6 +21,8 @@ const BoxGenerator: React.FC = () => {
   const [backPoint, setBackPoint] = useState<Point | null>(null);
   const [count, setCount] = useState<number>(0);
 
+  const showingResults = RESULT_STATES.includes(state);
+
   const handleReset = () => {
     setBox(generateBoxData(canvasWidth, canvasHeight));
     setState(States.PlaceFrontPoint);
@@ -70,7 +72,7 @@ const BoxGenerator: React.FC = () => {
       context.stroke();
     };
 
-    if (RESULT_STATES.includes(state)) {
+    if (showingResults) {
       if (state === States.CheckResultsWithVanishingPoints) {
         drawLine(box.yEnd1, box.vp1, "red", 1);
         drawLine(box.corner12, box.vp1, "red", 1);
@@ -121,7 +123,7 @@ const BoxGenerator: React.FC = () => {
     if (backPoint !== null) {
       drawPoint(backPoint, "red");
     }
-  }, [canvasRef, box, state, frontPoint, backPoint]);
+  }, [canvasRef, box, state, showingResults, frontPoint, backPoint]);
 
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (canvasRef.current === null) {
@@ -159,8 +161,6 @@ const BoxGenerator: React.FC = () => {
     }
   };
 
-  const showingResults = [States.CheckResults, States.CheckResultsWithVanishingPoints].includes(state);
-
   const handleCheckResults = () => {
     setCount((count) => count + 1);
     setState(States.CheckResultsWithVanishingPoints);
@@ -169,16 +169,17 @@ const BoxGenerator: React.FC = () => {
   const handleToggleVPs = () =>
     setState(state === States.CheckResults ? States.CheckResultsWithVanishingPoints : States.CheckResults);
 
+  const handleTogglePoint = () => {
+    setState(state === States.PlaceBackPoint ? States.PlaceFrontPoint : States.PlaceBackPoint);
+  };
+
   return (
     <BoxGeneratorInner>
       <BoxTitle>{getTitle()}</BoxTitle>
       <BoxCanvas ref={canvasRef} width={canvasWidth} height={canvasHeight} onClick={handleCanvasClick} />
       <BoxControls>
-        <ControlButton disabled={RESULT_STATES.includes(state)} onClick={() => setState(States.PlaceFrontPoint)}>
-          Place Front
-        </ControlButton>
-        <ControlButton disabled={RESULT_STATES.includes(state)} onClick={() => setState(States.PlaceBackPoint)}>
-          Place Back
+        <ControlButton disabled={showingResults} onClick={handleTogglePoint}>
+          {state === States.PlaceBackPoint ? "Place Front" : "Place Back"}
         </ControlButton>
         {!showingResults && (
           <ControlButton disabled={frontPoint === null || backPoint === null} onClick={handleCheckResults}>
